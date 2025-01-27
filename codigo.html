@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Projeto1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .dashboard {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        .dashboard h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .log {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .log span {
+            font-weight: bold;
+        }
+        .log .time {
+            color: #555;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>Dashboard - Projeto1</h1>
+        <div id="log-container">
+            <!-- Logs serão adicionados dinamicamente aqui -->
+        </div>
+    </div>
+
+    <script>
+        const logContainer = document.getElementById('log-container');
+
+        // Função para processar dados recebidos do webhook
+        async function receiveWebhookData() {
+            // Simula a configuração de um servidor que recebe requisições POST
+            // Isso deve ser substituído por sua lógica de backend
+            if (typeof EventSource !== 'undefined') {
+                const eventSource = new EventSource('/your-webhook-endpoint'); // Substitua pela URL do webhook
+
+                eventSource.onmessage = (event) => {
+                    const data = JSON.parse(event.data); // Supondo que o servidor envie os dados como JSON
+                    const status = data.status || 'Desconhecido';
+                    const timestamp = new Date(data.timestamp || Date.now());
+
+                    const formattedTime = timestamp.toLocaleTimeString('pt-BR');
+
+                    // Cria o elemento do log
+                    const logElement = document.createElement('div');
+                    logElement.className = 'log';
+                    logElement.innerHTML = `
+                        <span>Status: ${status}</span>
+                        <span class="time">Hora: ${formattedTime}</span>
+                    `;
+
+                    // Adiciona o log ao container
+                    logContainer.appendChild(logElement);
+
+                    // Faz o scroll descer para o último log
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                };
+
+                eventSource.onerror = () => {
+                    console.error('Erro ao conectar com o webhook.');
+                };
+            } else {
+                console.error('Seu navegador não suporta EventSource.');
+            }
+        }
+
+        // Chama a função para iniciar o listener do webhook
+        receiveWebhookData();
+    </script>
+</body>
+</html>
